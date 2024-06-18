@@ -11,6 +11,13 @@ GCS_OUTPUT_FILEPATH = "test.pkl"
 bucket_name = os.environ["GCS_BUCKET_NAME"]
 gcs = GCS(bucket_name)
 
+
+def plot(fig_placeholder, data: np.ndarray):
+    fig, ax = plt.subplots()
+    ax.hist(data)
+    fig_placeholder.pyplot(fig)
+
+
 st.title("Gaussian distribution generation")
 col_mu, col_sigma, col_n = st.columns(3)
 with col_mu:
@@ -34,26 +41,23 @@ with action_buttons:
         clear_btn = st.button("Clear")
 
 if clear_btn:
-    del st.session_state['data']
+    if 'data' in st.session_state:
+        del st.session_state['data']
 
 if load_btn:
     if gcs.blob_exists(GCS_OUTPUT_FILEPATH):
         pkl_data = gcs.download_blob_into_memory(GCS_OUTPUT_FILEPATH)
         data = pickle.loads(pkl_data)
         st.session_state['data'] = data
+        plot(fig_placeholder, data)
 
 if save_btn:
     if 'data' in st.session_state:
-        data = pickle.dumps(st.session_state.data)
-        gcs.upload_blob_from_file(data, GCS_OUTPUT_FILEPATH)
+        upload_data = pickle.dumps(st.session_state.data)
+        gcs.upload_blob_from_file(upload_data, GCS_OUTPUT_FILEPATH)
+        plot(fig_placeholder, st.session_state.data)
 
 if generate_btn:
-    fig = plt.figure()
     data = np.random.normal(mu, sigma, n_points)
     st.session_state['data'] = data
-    plt.hist(data)
-    fig_placeholder.pyplot(fig)
-elif 'data' in st.session_state:
-    fig = plt.figure()
-    plt.hist(st.session_state.data)
-    fig_placeholder.pyplot(fig)
+    plot(fig_placeholder, data)
