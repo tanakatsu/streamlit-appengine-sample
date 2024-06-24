@@ -40,3 +40,6 @@ class GCS:
     def blob_exists(self, blob_name):
         blob = self.bucket.blob(blob_name)
         return blob.exists()
+
+    def bucket_exists(self):
+        return self.bucket.exists()

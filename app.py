@@ -18,6 +18,9 @@ def plot(fig_placeholder, data: np.ndarray):
     fig_placeholder.pyplot(fig)
 
 
+if "valid_bucket" not in st.session_state:
+    st.session_state["valid_bucket"] = gcs.bucket_exists()
+
 st.title("Gaussian distribution generation")
 col_mu, col_sigma, col_n = st.columns(3)
 with col_mu:
@@ -34,9 +37,9 @@ action_buttons, _ = st.columns(2)
 with action_buttons:
     col_save, col_load, col_clear, _ = st.columns((1, 1, 1, 1))
     with col_save:
-        save_btn = st.button("Save")
+        save_btn = st.button("Save", disabled=(not st.session_state["valid_bucket"]))
     with col_load:
-        load_btn = st.button("Load")
+        load_btn = st.button("Load", disabled=(not st.session_state["valid_bucket"]))
     with col_clear:
         clear_btn = st.button("Clear")
 
