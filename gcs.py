@@ -1,4 +1,5 @@
 from google.cloud import storage
+from google.api_core.exceptions import Forbidden
 import tempfile
 
 
@@ -42,4 +43,9 @@ class GCS:
         return blob.exists()
 
     def bucket_exists(self):
-        return self.bucket.exists()
+        try:
+            flag = self.bucket.exists()
+        except Forbidden as e:
+            print(str(e))
+            flag = False
+        return flag
